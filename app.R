@@ -1,17 +1,39 @@
 library(shiny)
 library(shinyMobile)
 library(httr)
-colors <- c(
-  RColorBrewer::brewer.pal(9,"GnBu")[8:6],
-  RColorBrewer::brewer.pal(9,"Greens")[6:8],
-  RColorBrewer::brewer.pal(9,"OrRd")[5:7]
-)
+library(readr)
+pick_color <- function(temp){
+  colors <- c(
+    "blue",
+    "green",
+    "yellow",
+    "red"
+  )
+  ifelse(
+    temp < 35, 
+    colors[1],
+    ifelse(
+      temp < 41,
+      colors[2],
+      ifelse(
+        temp < 50,
+        "yellow",
+        "red"
+      )
+    )
+  )
+}
 shiny::shinyApp(
   ui = f7Page(
     title = "Hops Dryer",
     f7SingleLayout(
       navbar = f7Navbar(title = "Hops Dryer"),
-      uiOutput("visuals")
+      uiOutput("visuals"),
+      toolbar = f7Toolbar(
+        f7Icon("logo_github"),
+        a(href = "https://github.com/benjaminschwetz/hops_app",
+          "benjaminschwetz/hops_app"),
+        position = "bottom")
     )
   ),
   server = function(input, output) {
@@ -46,7 +68,7 @@ shiny::shinyApp(
           f7Card(
             title= "Temperature",
             f7Button(
-              color=colors[round(result()$field2/10)],
+              color=pick_color(result()$field2),
               label = paste0(result()$field2, " °C")
             )
           ),
